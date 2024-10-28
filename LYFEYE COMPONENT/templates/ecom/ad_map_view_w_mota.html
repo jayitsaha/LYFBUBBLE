@@ -1,0 +1,1609 @@
+
+{% extends 'base.html' %}
+{% load mathfilters %}
+{% load static %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="/static/css/neocomps.css">
+
+<style>
+    :root {
+      --font-primary: "Poppins", sans-serif;
+      --spacer: 0.5rem;
+      --card-gap: calc(var(--spacer) / 2);
+      --card-gap-lg: calc(var(--spacer) * 2);
+      --card-gap-xl: calc(var(--spacer) * 4);
+      --grid-gap: 2rem;
+      --grid-gap--sm: var(--grid-gap);
+      --grid-gap--lg: calc(var(--grid-gap) / 2);
+      --btn-bg: #f0f0f3;
+      --btn-fg: #333333;
+      --tag-bg: #663399;
+      --tag-fg: #ffffff;
+      --overlay-grad1: rgba(0, 0, 0, 0.3);
+      --overlay-grad2: rgba(0, 0, 0, 0.7);
+      --card-bg: #e0e0e0;
+      --card-text: #333333;
+      --shadow-light: #ffffff;
+      --shadow-dark: rgba(0, 0, 0, 0.2);
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-primary);
+      font-weight: 400;
+      padding: var(--grid-gap--sm) 0;
+      background-color: #f0f0f3;
+      margin-top: -31px;
+    }
+
+    main {
+      width: 90%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container_card {
+      display: flex; /* Flexbox for vertical stacking */
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .card {
+      display: grid;
+      grid-template: [card-start] "tags actions" [card-end]/[card-start] 1fr auto [card-end];
+      background-color: var(--card-bg);
+      color: var(--card-text);
+      border-radius: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      max-width: 100%;
+      width: 70%; /* Adjust the width as needed */
+      margin: 0 auto;
+      transform: translateY(-5px);
+      box-shadow: 9px 9px 20px var(--shadow-dark), -9px -9px 20px var(--shadow-light);
+      margin-top: 100px;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 9px 9px 20px var(--shadow-dark), -9px -9px 20px var(--shadow-light);
+    }
+
+    .card > *, .card::before {
+      grid-area: card;
+    }
+
+    .card__actions {
+      grid-area: actions;
+      place-self: end;
+      display: flex;
+      padding: var(--card-gap);
+      gap: var(--card-gap);
+    }
+
+    .card__btn {
+      display: flex;
+      padding: var(--card-gap);
+      gap: var(--card-gap);
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      cursor: pointer;
+      background-color: var(--btn-bg);
+      color: var(--btn-fg);
+      border-radius: 12px;
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card__btn:hover {
+      background-color: var(--btn-fg);
+      color: var(--btn-bg);
+      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    }
+
+    .card__btn [data-icon] {
+      inline-size: 1em;
+      fill: inherit;
+    }
+
+    .card__tags {
+      grid-area: tags;
+      place-self: start;
+      display: flex;
+      gap: var(--card-gap);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.3;
+      user-select: none;
+      background-color: var(--tag-bg);
+      color: var(--tag-fg);
+      border-radius: 12px;
+      padding: 0.25rem 0.5rem;
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    }
+
+    .card__title {
+      font-size: clamp(1rem, 1rem + 2vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      place-self: center;
+      text-align: center;
+      padding: 0 var(--card-gap-lg);
+    }
+
+    .card__video {
+      width: 100%;
+      object-fit: cover;
+      aspect-ratio: 16/9;
+      z-index: -1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .button-container {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      align-self: center;
+    }
+
+    .neumorphic-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 30px;
+      border: none;
+      background-color: #e0e0e0;
+      border-radius: 15px;
+      box-shadow: 9px 9px 20px #c4c4c4, -9px -9px 20px #ffffff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .neumorphic-button:hover {
+      transform: scale(1.05);
+      box-shadow: 4px 4px 8px #c4c4c4, -4px -4px 8px #ffffff;
+    }
+
+    .neumorphic-button svg {
+      inline-size: 1em;
+      fill: currentColor;
+      margin-right: 10px;
+    }
+
+    /* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 50%; /* Full width */
+  height: 50%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: transparent; /* No backdrop */
+}
+
+.modal-content {
+  background-color: #e0e0e0;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 9px 9px 20px #c4c4c4, -9px -9px 20px #ffffff;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Neumorphic checkbox styles */
+.neumorphic-checkbox {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.neumorphic-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-custom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 6px 6px 10px #c4c4c4, -6px -6px 10px #ffffff;
+}
+
+.neumorphic-checkbox:hover input ~ .checkbox-custom {
+  box-shadow: 4px 4px 6px #c4c4c4, -4px -4px 6px #ffffff;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom {
+  background-color: #663399;
+}
+
+.checkbox-custom:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom:after {
+  display: block;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.view-modal, .popup{
+  position: absolute;
+  left: 50%;
+}
+button{
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  transition: background 0.1s linear, border-color 0.1s linear, color 0.1s linear;
+}
+.view-modal{
+  /* top: 50%;
+  color: #ff4b4b;
+  font-size: 18px;
+  padding: 10px 25px;
+  background: #fff;
+  transform: translate(-50%, -50%); */
+}
+.popup{
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  top: -150%;
+  max-width: 1040px;
+  height: 700px;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0px 10px 15px rgba(0,0,0,0.1);
+  transform: translate(-50%, -50%) scale(1.2);
+  transition: top 0s 0.2s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+  
+}
+.popup.show{
+  top: 50%;
+  opacity: 1;
+  pointer-events: auto;
+  transform:translate(-50%, -50%) scale(1);
+  transition: top 0s 0s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+
+}
+.popup :is(header, .icons, .field){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.popup header{
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ebedf9;
+}
+header span{
+  font-size: 21px;
+  font-weight: 600;
+}
+header .close, .icons a{
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+header .close{
+  color: #878787;
+  font-size: 17px;
+  background: #f2f3fb;
+  height: 33px;
+  width: 33px;
+  cursor: pointer;
+}
+header .close:hover{
+  background: #ebedf9;
+}
+.popup .content{
+  margin: 20px 0;
+}
+.popup .icons{
+  margin: 15px 0 20px 0;
+}
+.content p{
+  font-size: 16px;
+}
+.content .icons a{
+  height: 50px;
+  width: 50px;
+  font-size: 20px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.icons a i{
+  transition: transform 0.3s ease-in-out;
+}
+.icons a:nth-child(1){
+  color: #1877F2;
+  border-color: #b7d4fb;
+}
+.icons a:nth-child(1):hover{
+  background: #1877F2;
+}
+.icons a:nth-child(2){
+  color: #46C1F6;
+  border-color: #b6e7fc;
+}
+.icons a:nth-child(2):hover{
+  background: #46C1F6;
+}
+.icons a:nth-child(3){
+  color: #e1306c;
+  border-color: #f5bccf;
+}
+.icons a:nth-child(3):hover{
+  background: #e1306c;
+}
+.icons a:nth-child(4){
+  color: #25D366;
+  border-color: #bef4d2;
+}
+.icons a:nth-child(4):hover{
+  background: #25D366;
+}
+.icons a:nth-child(5){
+  color: #0088cc;
+  border-color: #b3e6ff;
+}
+.icons a:nth-child(5):hover{
+  background: #0088cc;
+}
+.icons a:hover{
+  color: #fff;
+  border-color: transparent;
+}
+.icons a:hover i{
+  transform: scale(1.2);
+}
+.content .field{
+  margin: 12px 0 -5px 0;
+  height: 45px;
+  border-radius: 4px;
+  padding: 0 5px;
+  border: 1px solid #e1e1e1;
+}
+.field.active{
+  border-color: #ff4b4b;
+}
+.field i{
+  width: 50px;
+  font-size: 18px;
+  text-align: center;
+}
+.field.active i{
+  color: #ff4b4b;
+}
+.field input{
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+.field button{
+  color: #fff;
+  padding: 5px 18px;
+  background: #ff4b4b;
+}
+.field button:hover{
+  background: #ff2a2a;
+}
+  </style>
+
+<style>
+.map-container {
+    
+    width: -webkit-fill-available;
+}
+
+.map-image {
+    
+}
+
+.map-button {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    background-color: transparent; 
+    color: red;
+    padding: 8px 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 50px;
+    /* background-color: plum; */
+
+.map-button:hover {
+    background-color: plum;
+    border-radius: 10px;
+}
+</style>
+
+<style>
+
+.icon {
+  
+  border-radius: 50%;
+  align-items: center;
+  text-decoration: none;
+  justify-content: center;
+  background-color: #ececec;
+  box-shadow: 10px 10px 15px #c7c4c4, -10px -10px 15px #fff;
+}
+.icon.blink {
+    background-color: pink; /* Blinking color */
+}
+
+/* .icon:hover {
+  box-shadow: inset 5px 5px 5px #c7c4c4, inset -5px -5px 5px #fff;
+}
+.icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  height: auto;
+  width: auto;
+  padding: 10px 20px;
+  color: #fff;
+  font-size: 1rem;
+  top: 120%;
+  left: -25%;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 5px;
+  transform: translateY(30px);
+  transition: transform 0s;
+  font-family: "Poppins", sans-serif;
+}
+
+.icon::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 5rem solid transparent; /* Increase size */
+  border-right: 5rem solid transparent; /* Increase size */
+  border-bottom: 6rem solid #FF7F7F; /* Increase size */
+  top: -12%;
+  left: calc(0% - 52px);
+  z-index: 1;
+  opacity: 0;
+  transition: transform 0.2s, opacity 0.2s;
+  transform: translateY(30px);
+  
+}
+
+.icon:hover::after {
+  opacity: 1;
+  transform: translateY(-50px) translateX(-120px);
+  background-color: #1877f2;
+}
+
+.icon:hover::before {
+  opacity: 0.7;
+  top: 103%;
+  left: calc(0% - 52px);
+  transform: rotate(0deg) translateY(0px);
+} */
+
+</style>
+<style>
+    /* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 50%; /* Full width */
+  height: 50%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: transparent; /* No backdrop */
+}
+
+.modal-content {
+  background-color: #e0e0e0;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 9px 9px 20px #c4c4c4, -9px -9px 20px #ffffff;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Neumorphic checkbox styles */
+.neumorphic-checkbox {
+  display: block;
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.neumorphic-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-custom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 6px 6px 10px #c4c4c4, -6px -6px 10px #ffffff;
+}
+
+.neumorphic-checkbox:hover input ~ .checkbox-custom {
+  box-shadow: 4px 4px 6px #c4c4c4, -4px -4px 6px #ffffff;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom {
+  background-color: #663399;
+}
+
+.checkbox-custom:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom:after {
+  display: block;
+}
+
+.neumorphic-checkbox input:checked ~ .checkbox-custom:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.view-modal, .popup{
+  position: absolute;
+  left: 50%;
+}
+button{
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  transition: background 0.1s linear, border-color 0.1s linear, color 0.1s linear;
+}
+.view-modal{
+  /* top: 50%;
+  color: #ff4b4b;
+  font-size: 18px;
+  padding: 10px 25px;
+  background: #fff;
+  transform: translate(-50%, -50%); */
+}
+.popup{
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  top: -150%;
+  max-width: 540px;
+  height: 400px;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0px 10px 15px rgba(0,0,0,0.1);
+  transform: translate(-50%, -50%) scale(1.2);
+  transition: top 0s 0.2s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+  
+}
+.popup.show{
+  top: 50%;
+  opacity: 1;
+  pointer-events: auto;
+  transform:translate(-50%, -50%) scale(1);
+  transition: top 0s 0s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+
+}
+.popup :is(header, .icons, .field){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.popup header{
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ebedf9;
+}
+header span{
+  font-size: 21px;
+  font-weight: 600;
+}
+header .close, .icons a{
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+header .close{
+  color: #878787;
+  font-size: 17px;
+  background: #f2f3fb;
+  height: 33px;
+  width: 33px;
+  cursor: pointer;
+}
+header .close:hover{
+  background: #ebedf9;
+}
+.popup .content{
+  margin: 20px 0;
+}
+.popup .icons{
+  margin: 15px 0 20px 0;
+}
+.content p{
+  font-size: 16px;
+}
+.content .icons a{
+  height: 50px;
+  width: 50px;
+  font-size: 20px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.icons a i{
+  transition: transform 0.3s ease-in-out;
+}
+.icons a:nth-child(1){
+  color: #1877F2;
+  border-color: #b7d4fb;
+}
+.icons a:nth-child(1):hover{
+  background: #1877F2;
+}
+.icons a:nth-child(2){
+  color: #46C1F6;
+  border-color: #b6e7fc;
+}
+.icons a:nth-child(2):hover{
+  background: #46C1F6;
+}
+.icons a:nth-child(3){
+  color: #e1306c;
+  border-color: #f5bccf;
+}
+.icons a:nth-child(3):hover{
+  background: #e1306c;
+}
+.icons a:nth-child(4){
+  color: #25D366;
+  border-color: #bef4d2;
+}
+.icons a:nth-child(4):hover{
+  background: #25D366;
+}
+.icons a:nth-child(5){
+  color: #0088cc;
+  border-color: #b3e6ff;
+}
+.icons a:nth-child(5):hover{
+  background: #0088cc;
+}
+.icons a:hover{
+  color: #fff;
+  border-color: transparent;
+}
+.icons a:hover i{
+  transform: scale(1.2);
+}
+.content .field{
+  margin: 12px 0 -5px 0;
+  height: 45px;
+  border-radius: 4px;
+  padding: 0 5px;
+  border: 1px solid #e1e1e1;
+}
+.field.active{
+  border-color: #ff4b4b;
+}
+.field i{
+  width: 50px;
+  font-size: 18px;
+  text-align: center;
+}
+.field.active i{
+  color: #ff4b4b;
+}
+.field input{
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+.field button{
+  color: #fff;
+  padding: 5px 18px;
+  background: #ff4b4b;
+}
+.field button:hover{
+  background: #ff2a2a;
+}
+</style>
+
+<style>
+    .hidden {
+      display: none;
+    }
+    .visible {
+      display: block;
+    }
+  </style>
+
+  <style>
+    canvas {
+            position: absolute;
+            z-index: 2; /* Ensure canvas is on top of the button */
+            pointer-events: none; /* Allow mouse events to pass through canvas */
+            background-color: transparent; /* Ensure canvas background is transparent */
+            border: none; /* Remove canvas border */
+        }
+  </style>
+
+
+    <section class="ftco-section">
+    	<div class="row visible" id="map-container-row">
+			<!-- <div class="input-cart col s12 m10 push-m1 z-depth-2 grey lighten-5"> -->
+				<div class="col s12 m3 l4 login">
+
+                    <div class="togglegroup">
+                        <div class="checkboxwrapper selected" style="margin-left: 180px; margin-top: 150px;display: flex;align-items: center; ">
+                          <h4 style="margin-left: 80px; margin-bottom: 20px; "><b style="color: #FED057">LIVE&nbsp;TRACKING</b></h4>
+                          <input type="checkbox" name="chkbxfield" id="chkbxfield" >
+                       
+                        </div>
+                      </div>
+
+                    <article class="card" style="width: 90% !important;">
+                        <video id="video_player" autoplay muted loop class="card__video">
+                          <source id="video_player_source" src="/static/assets/videos/page2_stitched_new.mp4">
+                        </video>
+                        <!-- <aside class="card__tags">Zone 1 Surveillance</aside> -->
+                        <!-- <aside class="card__actions">
+                          <button class="card__btn" title="Save as favorite">
+                            <svg data-icon="heart" viewBox="0 0 512 512">
+                              <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+                            </svg>
+                          </button>
+                        </aside> -->
+                      </article>
+	
+		
+	
+		        </div>
+	
+	
+	
+		<div class="col s12 m9 l8 signup">
+			<div class="signupForm">
+                <div style="display: flex;">
+                    <h4 id="return_text" class="center" style="margin-left: 650px; margin-right: 250px;"> <b style="color: #FED057">AD</b> MAP</h4>
+                <!-- <button class="neumorphic-button" id="toggleButton" style="height: 50px; margin-top: 10px;">
+                    <svg data-icon="play" viewBox="0 0 448 512">
+                      <path d="M432 256c0 114.7-93.3 208-208 208S16 370.7 16 256 109.3 48 224 48s208 93.3 208 208zm-104-96v192c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32z"/>
+                    </svg>
+                    <div><span>Switch View</span> </div>
+                  </button> -->
+                </div>
+				
+				<div class="map-container visible" id="map-container">
+                    <!-- Container for the map image -->
+                    <img id="return_img" src="/static/assets/img/Map.png" class="map-image" alt="Map Image" style="width: -webkit-fill-available !important;"/>
+                    <!-- Buttons positioned over the map image -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:00:00" id="drawButton" style="left: 52.15%; top: 81%;" onclick="handleButtonClick(1)"><img  id="map_img_1"  src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:20:38" id="map_button_2" style="left: 10.65%; top: 58.65%;" onclick="handleButtonClick(1)"><img id="map_img_2"  src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:39:11" id="map_button_3" style="left: 92%; top: 49%;" onclick="handleButtonClick(1)"><img  id="map_img_3" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_4" style="left: 43.80%; top: 36%;" onclick="handleButtonClick(1)"><img  id="map_img_4" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_5" style="left: 49.95%; top: 45%;" onclick="handleButtonClick(1)"><img  id="map_img_5" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_6" style="left: 58.45%; top: 30.85%;" onclick="handleButtonClick('paper')"><img  id="map_img_6" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button>
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_7" style="left: 60.95%; top: 45%;" onclick="handleButtonClick(1)"><img  id="map_img_7" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_8" style="left: 73.25%; top: 45.55%;" onclick="handleButtonClick(1)"><img  id="map_img_8" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_9" style="left: 72.65%; top: 61.5%;" onclick="handleButtonClick(1)"><img  id="map_img_9" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_10" style="left: 27.25%; top: 75%;" onclick="handleButtonClick('cereal')"><img  id="map_img_10" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button>
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_11" style="left: 26%; top: 58%;" onclick="handleButtonClick(1)"><img  id="map_img_11" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_12" style="left: 39.55%; top: 64.65%;" onclick="handleButtonClick(1)"><img  id="map_img_12" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_13" style="left: 34.55%; top: 47.65%;" onclick="handleButtonClick(1)"><img  id="map_img_13" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+                    <!-- <button class="map-button icon" data-tooltip="2024-06-21&nbsp;14:58:22" id="map_button_14" style="left: 26.25%; top: 35.65%;" onclick="handleButtonClick(1)"><img  id="map_img_14" src="/static/assets/img/campaign.png" height="30px" width="30px"/></button> -->
+
+
+
+                    <!-- Add more buttons as needed -->
+                </div>
+
+            
+
+
+
+                
+
+	
+		</div>
+        
+		</div>
+        
+        <!-- <div class="button-container" style="display: block !important; margin-left: 1200px; margin-top: 30px;">
+            <button class="neumorphic-button" onclick="handleButtonClick('button1')" style="margin-top: 30px;">
+              <svg data-icon="play" viewBox="0 0 448 512">
+                <path d="M432 256c0 114.7-93.3 208-208 208S16 370.7 16 256 109.3 48 224 48s208 93.3 208 208zm-104-96v192c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32z"/>
+              </svg>
+              <div><span id="tracking_span">Tracking in Progress ...</span> </div>
+            </button>
+            <button class="neumorphic-button" id="view-modal" onclick="openModal()" style="display: none; margin-top: 30px; margin-left: 39px;">
+              <svg data-icon="download" viewBox="0 0 576 512">
+                <path d="M360.9 128v159.5H392c6.6 0 12-5.4 12-12V84c0-6.6-5.4-12-12-12h-80c-6.6 0-12 5.4-12 12v191.5c0 6.6 5.4 12 12 12h31.1V384h-120c-26.5 0-48 21.5-48 48v20.5h-32V432c0-44.1 35.9-80 80-80h120v-40.5h-31.1c-6.6 0-12-5.4-12-12V84c0-6.6 5.4-12 12-12h80c6.6 0 12 5.4 12 12v191.5c0 6.6-5.4 12-12 12h-31.1V287.5H360.9V128zM569.7 314.1l-18.8 18.8c-4.7 4.7-12.3 4.7-17 0L320 157.4 193.6 283.9c-4.7 4.7-12.3 4.7-17 0l-18.8-18.8c-4.7-4.7-4.7-12.3 0-17l160-160c4.7-4.7 12.3-4.7 17 0l160 160c4.7 4.7 4.7 12.3 0 17z"/>
+              </svg>
+              Track Source
+            </button>
+          </div> -->
+	
+	
+	  
+	<!-- </div> -->
+	</div>
+
+
+    <div class="row hidden" id="dag-container-row">
+
+        <div  id="dag-container">
+            <!-- <div class="col s12 m3 l4 login"> -->
+
+                <button class="neumorphic-button" id="toggleButton1" style="height: 50px; margin-top: 10px; right: 0; position: fixed; margin-right: 20px;">
+                    <svg data-icon="play" viewBox="0 0 448 512">
+                      <path d="M432 256c0 114.7-93.3 208-208 208S16 370.7 16 256 109.3 48 224 48s208 93.3 208 208zm-104-96v192c0 17.7-14.3 32-32 32s-32-14.3-32-32V160c0-17.7 14.3-32 32-32s32 14.3 32 32z"/>
+                    </svg>
+                    <div><span>Switch View</span> </div>
+                  </button>
+            <article class="card">
+                <video id="video_player_1" autoplay loop class="card__video">
+                  <!-- <source id="video_player_source_1" src="/static/assets/videos/dag.mp4">  -->
+                </video>
+                <!-- <aside class="card__tags">Zone 1 Surveillance</aside> -->
+                <!-- <aside class="card__actions">
+                  <button class="card__btn" title="Save as favorite">
+                    <svg data-icon="heart" viewBox="0 0 512 512">
+                      <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+                    </svg>
+                  </button>
+                </aside> -->
+              </article>
+            <!-- </div> -->
+            </div>
+
+
+    </div>
+
+
+    <div class="popup" style="width: 90% !important; height: 90% !important; max-width: none; top: 50% !important;">
+        <header>
+          <span>Source Video</span>
+          <div class="close"><i class="fa fa-times"></i></div>
+        </header>
+        <div class="content">
+
+            <div class="container_card">
+                <article class="card" style="width: 80% !important;  transform: translateY(-97px) !important;
+">
+                  <video id="parking_vid" autoplay muted class="card__video">
+                    <source id="parking_src" src="/static/assets/videos/parking_final_edited.mp4">
+                  </video>
+
+                  <img id="parking_img" src="/static/assets/img/chev.png" class="hidden"/>
+
+                  <!-- <aside class="card__tags">Zone 1 Surveillance</aside> -->
+                  
+                </article>
+                
+              </div>
+
+              <button class="neumorphic-button hidden" id="vehicle_type" style="margin-top: -63px; margin-left: 688px;">
+                <svg data-icon="download" viewBox="0 0 576 512">
+                  <path d="M360.9 128v159.5H392c6.6 0 12-5.4 12-12V84c0-6.6-5.4-12-12-12h-80c-6.6 0-12 5.4-12 12v191.5c0 6.6 5.4 12 12 12h31.1V384h-120c-26.5 0-48 21.5-48 48v20.5h-32V432c0-44.1 35.9-80 80-80h120v-40.5h-31.1c-6.6 0-12-5.4-12-12V84c0-6.6 5.4-12 12-12h80c6.6 0 12 5.4 12 12v191.5c0 6.6-5.4 12-12 12h-31.1V287.5H360.9V128zM569.7 314.1l-18.8 18.8c-4.7 4.7-12.3 4.7-17 0L320 157.4 193.6 283.9c-4.7 4.7-12.3 4.7-17 0l-18.8-18.8c-4.7-4.7-4.7-12.3 0-17l160-160c4.7-4.7 12.3-4.7 17 0l160 160c4.7 4.7 4.7 12.3 0 17z"/>
+                </svg>
+                Vehicle Type: Chevrolet Silverado 
+              </button>
+
+              <button class="neumorphic-button hidden" id="vehicle_plate" style="margin-top: -47px; margin-left: 1081px;">
+                <svg data-icon="download" viewBox="0 0 576 512">
+                  <path d="M360.9 128v159.5H392c6.6 0 12-5.4 12-12V84c0-6.6-5.4-12-12-12h-80c-6.6 0-12 5.4-12 12v191.5c0 6.6 5.4 12 12 12h31.1V384h-120c-26.5 0-48 21.5-48 48v20.5h-32V432c0-44.1 35.9-80 80-80h120v-40.5h-31.1c-6.6 0-12-5.4-12-12V84c0-6.6 5.4-12 12-12h80c6.6 0 12 5.4 12 12v191.5c0 6.6-5.4 12-12 12h-31.1V287.5H360.9V128zM569.7 314.1l-18.8 18.8c-4.7 4.7-12.3 4.7-17 0L320 157.4 193.6 283.9c-4.7 4.7-12.3 4.7-17 0l-18.8-18.8c-4.7-4.7-4.7-12.3 0-17l160-160c4.7-4.7 12.3-4.7 17 0l160 160c4.7 4.7 4.7 12.3 0 17z"/>
+                </svg>
+                Vehicle Plate: NA
+              </button>
+
+              <button class="neumorphic-button hidden" id="parking_done" onclick="showVehicleDetails()" style="margin-top: -63px; margin-left: 876px;">
+                <svg data-icon="download" viewBox="0 0 576 512">
+                  <path d="M360.9 128v159.5H392c6.6 0 12-5.4 12-12V84c0-6.6-5.4-12-12-12h-80c-6.6 0-12 5.4-12 12v191.5c0 6.6 5.4 12 12 12h31.1V384h-120c-26.5 0-48 21.5-48 48v20.5h-32V432c0-44.1 35.9-80 80-80h120v-40.5h-31.1c-6.6 0-12-5.4-12-12V84c0-6.6 5.4-12 12-12h80c6.6 0 12 5.4 12 12v191.5c0 6.6-5.4 12-12 12h-31.1V287.5H360.9V128zM569.7 314.1l-18.8 18.8c-4.7 4.7-12.3 4.7-17 0L320 157.4 193.6 283.9c-4.7 4.7-12.3 4.7-17 0l-18.8-18.8c-4.7-4.7-4.7-12.3 0-17l160-160c4.7-4.7 12.3-4.7 17 0l160 160c4.7 4.7 4.7 12.3 0 17z"/>
+                </svg>
+                Identify Vehicle
+              </button>
+
+              
+        
+      
+          
+      
+          <div class="" style="margin-left: 0px !important;">
+            <input type="" id="" name="" min="0" max="100" value="" style="display: none !important;">
+          </div>
+          <!-- <p>Or copy link</p>
+          <div class="field">
+            <i class="url-icon uil uil-link"></i>
+            <input type="text" readonly value="example.com/share-link">
+            <button>Copy</button>
+          </div> -->
+        </div>
+        
+      </div>
+
+	
+	
+	</section>
+
+
+
+
+	<script>
+
+	function viewFull(x){
+
+		document.getElementById("genai_img").style.backgroundImage = "url(" + x + ")"
+
+		}
+	</script>
+
+    <script>
+
+
+        var blinkInterval;
+
+        function blink(button) {
+            button.classList.toggle('blink');
+        }
+
+        function clearBlinking() {
+            if (blinkInterval) {
+                clearInterval(blinkInterval);
+            }
+            var buttons = document.querySelectorAll('.map-button');
+            buttons.forEach(function(button) {
+                button.classList.remove('blink');
+            });
+        }
+
+        function startBlinking(buttons, duration, interval, nextStep) {
+            clearBlinking();
+            blinkInterval = setInterval(function() {
+                buttons.forEach(function(button) {
+                    blink(button);
+                });
+            }, interval);
+
+            setTimeout(function() {
+                clearBlinking();
+                if (nextStep) {
+                    nextStep();
+                }
+            }, duration);
+        }
+
+    // document.addEventListener('DOMContentLoaded', function() {
+        
+
+    //     setTimeout(function() {
+
+    //         var button = document.getElementById('map_button_4');
+    //         var buttonImage = document.getElementById('map_img_4');
+    //         console.log(button.style.backgroundColor)
+    //         button.style.backgroundColor = "red"; 
+    //         buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //         buttonImage.alt = "cctv_inv";
+            
+    //         var buttonsSet1 = [
+    //             document.getElementById('map_button_13'),
+    //             document.getElementById('map_button_5'),
+    //             document.getElementById('map_button_6'),
+    //             document.getElementById('map_button_14')
+    //         ];
+    //         startBlinking(buttonsSet1, 15000, 500, function() {
+    //             setTimeout(function() {
+    //                 var button = document.getElementById('map_button_4');
+    //                 var buttonImage = document.getElementById('map_img_4');
+    //                 button.style.backgroundColor = "";
+    //                 var buttonImage = document.getElementById('map_img_4');
+    //                 buttonImage.src = "/static/assets/img/cctv.png"; 
+    //                 buttonImage.alt = "cctv";
+
+    //                 var button = document.getElementById('map_button_5');
+    //                 var buttonImage = document.getElementById('map_img_5');
+    //                 button.style.backgroundColor = "red"; 
+    //                 buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                 buttonImage.alt = "cctv_inv";
+
+    //                 var videoPlayer = document.getElementById('video_player');
+    //                 var videoSource = document.getElementById('video_player_source');
+    //                 videoSource.src = "/static/assets/videos/pg_3_vid_1_track_annotated_edited.mp4";
+    //                 videoPlayer.load(); 
+
+
+
+    //                 var buttonsSet2 = [
+    //                     document.getElementById('map_button_4'),
+    //                     document.getElementById('map_button_7'),
+    //                     document.getElementById('map_button_13'),
+    //                     document.getElementById('map_button_12')
+    //                 ];
+    //                 startBlinking(buttonsSet2, 15000, 500, function() {
+
+    //                     var button = document.getElementById('map_button_4');
+    //                     var buttonImage = document.getElementById('map_img_4');
+    //                     button.style.backgroundColor = "#6495ED";
+    //                     var buttonImage = document.getElementById('map_img_4');
+    //                     buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                     buttonImage.alt = "cctv_inv";
+
+    //                     var button = document.getElementById('map_button_5');
+    //                     var buttonImage = document.getElementById('map_img_5');
+    //                     button.style.backgroundColor = "";
+    //                     var buttonImage = document.getElementById('map_img_5');
+    //                     buttonImage.src = "/static/assets/img/cctv.png"; 
+    //                     buttonImage.alt = "cctv";
+
+    //                     var button = document.getElementById('map_button_12');
+    //                     var buttonImage = document.getElementById('map_img_12');
+    //                     button.style.backgroundColor = "red"; 
+    //                     buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                     buttonImage.alt = "cctv_inv";
+
+    //                     var videoPlayer = document.getElementById('video_player');
+    //                     var videoSource = document.getElementById('video_player_source');
+    //                     videoSource.src = "/static/assets/videos/pg_3_vid_2_track_annotated.mp4";
+    //                     videoPlayer.load(); 
+
+                    
+    //                     setTimeout(function() {
+    //                         var buttonsSet3 = [
+    //                             document.getElementById('map_button_5'),
+    //                             document.getElementById('map_button_13'),
+    //                             document.getElementById('map_button_10'),
+    //                             document.getElementById('map_button_11')
+    //                         ];
+    //                         startBlinking(buttonsSet3, 15000, 500, function(){
+
+    //                             var button = document.getElementById('map_button_5');
+    //                             var buttonImage = document.getElementById('map_img_5');
+    //                             button.style.backgroundColor = "#FED057";
+    //                             var buttonImage = document.getElementById('map_img_5');
+    //                             buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                             buttonImage.alt = "cctv_inv";
+
+    //                             var button = document.getElementById('map_button_12');
+    //                             var buttonImage = document.getElementById('map_img_12');
+    //                             button.style.backgroundColor = "";
+    //                             var buttonImage = document.getElementById('map_img_12');
+    //                             buttonImage.src = "/static/assets/img/cctv.png"; 
+    //                             buttonImage.alt = "cctv";
+
+    //                             var button = document.getElementById('map_button_10');
+    //                             var buttonImage = document.getElementById('map_img_10');
+    //                             button.style.backgroundColor = "red"; 
+    //                             buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                             buttonImage.alt = "cctv_inv";
+
+    //                             var videoPlayer = document.getElementById('video_player');
+    //                             var videoSource = document.getElementById('video_player_source');
+    //                             videoSource.src = "/static/assets/videos/pg_3_vid_3_track_annotated.mp4";
+    //                             videoPlayer.load(); 
+
+    //                             setTimeout(function() {
+    //                             var buttonsSet4 = [
+    //                                 document.getElementById('map_button_1'),
+    //                                 document.getElementById('map_button_12'),
+    //                                 document.getElementById('map_button_11')
+    //                             ];
+    //                             startBlinking(buttonsSet4, 15000, 500, function(){
+
+    //                                 var button = document.getElementById('map_button_12');
+    //                                 var buttonImage = document.getElementById('map_img_12');
+    //                                 button.style.backgroundColor = "#FED057";
+    //                                 buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                                 buttonImage.alt = "cctv_inv";
+
+    //                                 var button = document.getElementById('map_button_10');
+    //                                 var buttonImage = document.getElementById('map_img_10');
+    //                                 button.style.backgroundColor = "orange";
+    //                                 buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                                 buttonImage.alt = "cctv_inv";
+
+
+    //                                 var button = document.getElementById('map_button_2');
+    //                                 var buttonImage = document.getElementById('map_img_2');
+    //                                 button.style.backgroundColor = "#9083B3";
+    //                                 buttonImage.src = "/static/assets/img/cctv_inv.png"; 
+    //                                 buttonImage.alt = "cctv_inv";
+
+    //                                 $('#tracking_span').text("Source Tracking Finished");
+    //                                 document.getElementById('view-modal').style.display = 'block';
+
+
+
+    //                             });
+    //                     }, 0);
+
+    //                         });
+    //                     }, 0);
+    //                 });
+    //             }, 0);
+    //         });
+    //     }, 0);
+    // });
+    </script>
+
+
+
+
+
+
+<script>
+    var checked = false;
+    function triggerChange(){
+        var checkbox = document.getElementById('chkbxfield');
+        var videoPlayer = document.getElementById('video_player');
+        var videoSource = document.getElementById('video_player_source');
+        console.log("INSIDE triggerChange FN");
+        
+        if (checked) {
+                 checked = false
+                 console.log("checked")
+                 videoSource.src = "/static/assets/videos/page2_stitched_new.mp4"; // New video source when checked
+             } else {
+                checked = true
+                console.log("unchecked")
+                 videoSource.src = "/static/assets/videos/page2_stitched_new.mp4";
+             }
+             videoPlayer.load(); 
+
+
+
+    }
+</script>
+<script>
+    var video = document.getElementById("parking_vid");
+    var button = document.getElementById("parking_done")
+    
+    video.addEventListener("ended", function() {
+
+        button.classList.remove('hidden');
+        button.classList.add('visible');
+
+
+
+
+    
+    }, true);
+</script>
+
+<script>
+    function showVehicleDetails(){
+
+        var button1 = document.getElementById("vehicle_type")
+        var button2 = document.getElementById("vehicle_plate")
+        var img = document.getElementById("parking_img")
+        var button = document.getElementById("parking_done")
+
+        button1.classList.remove('hidden');
+        button1.classList.add('visible');
+
+        button2.classList.remove('hidden');
+        button2.classList.add('visible');
+
+        img.classList.remove('hidden');
+        img.classList.add('visible');
+
+        button.classList.add('hidden');
+        button.classList.remove('visible');
+
+        var video = document.getElementById("parking_vid");
+        video.classList.add('hidden');
+
+
+
+
+    }
+</script>
+
+
+
+
+	<script src="/static/vendor/js/jquery/dist/jquery.min.js"></script>
+	<script src="/static/vendor/js/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="/static/vendor/js/js-cookie/js.cookie.js"></script>
+	<script src="/static/vendor/js/jquery.scrollbar/jquery.scrollbar.min.js"></script>
+	<script src="/static/vendor/js/jquery-scroll-lock/dist/jquery-scrollLock.min.js"></script>
+	<script src="/static/vendor/js/argon.js?v=1.2.0"></script>
+	 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+	 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+	<script src="{% static 'js/geo.js' %}"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDo5ypHfGP2XRcvrmmYjfU6qRS1_OU4_TM&callback=initMap&libraries=&v=weekly" defer></script>
+	<script src="/static/js/jquery.min.js"></script>
+	<script src="/static/js/jquery-migrate-3.0.1.min.js"></script>
+	<script src="/static/js/popper.min.js"></script>
+	<script src="/static/js/bootstrap.min.js"></script>
+	<script src="/static/js/jquery.easing.1.3.js"></script>
+	<script src="/static/js/jquery.waypoints.min.js"></script>
+	<script src="/static/js/jquery.stellar.min.js"></script>
+	<script src="/static/js/owl.carousel.min.js"></script>
+	<script src="/static/js/jquery.magnific-popup.min.js"></script>
+	<script src="/static/js/aos.js"></script>
+	<script src="/static/js/jquery.animateNumber.min.js"></script>
+	<script src="/static/js/bootstrap-datepicker.js"></script>
+	<script src="/static/js/scrollax.min.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+	<script src="/static/js/google-map.js"></script>
+	<script src="/static/js/main.js"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	 <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
+
+
+<script>
+
+$(window).on('load', function(){
+  $('.modal.fade').appendTo('body');
+})
+
+</script>
+
+
+<script>
+	var likewindow;
+	function openlike(){
+		console.log("I AM IN CART CLOSE")
+		likewindow = window.open('/cart/{{product.productid}}/add');
+		setTimeout(windowClose,5);
+	}
+	function windowClose(){
+		likewindow.close();
+	}
+
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="/static/js/rangeslider.js" crossorigin="anonymous"></script>
+
+
+<script src="{% static 'js/script_chat_return.js' %}"></script>
+
+<script>
+    $('#chkbxfield').ready(function () {
+
+        $('#chkbxfield').on('change',"input[name='chkbxfield']",function() {
+                if(this.checked) {
+                alert ("checked");
+                }
+                });
+
+    }); 
+    $('#chkbxfield').find('checked')
+.each(function(){
+     $(this).change(function(){
+          console.log("Something changed");
+     })
+});
+
+    
+</script>
+
+<script>
+    const viewBtn = document.getElementById("view-modal"),
+          popup = document.querySelector(".popup"),
+          close = popup.querySelector(".close"),
+          input = popup.querySelector("input"),
+          copy = popup.querySelector("button"),
+          field = input.parentElement;
+    
+    viewBtn.onclick = () => popup.classList.toggle("show");
+    close.onclick = () => viewBtn.click();
+    
+    copy.onclick = () => {
+        input.select();
+        if (document.execCommand("copy")) {
+            field.classList.add("active");
+            copy.innerText = "Copied";
+            setTimeout(() => {
+                window.getSelection().removeAllRanges();
+                field.classList.remove("active");
+                copy.innerText = "Copy";
+            }, 3000);
+        }
+    };
+    </script>
+
+<script>
+    document.getElementById('toggleButton').addEventListener('click', function() {
+      var div1 = document.getElementById('map-container-row');
+      var div2 = document.getElementById('dag-container-row');
+
+      if (div1.classList.contains('visible')) {
+        div1.classList.remove('visible');
+        div1.classList.add('hidden');
+        div2.classList.remove('hidden');
+        div2.classList.add('visible');
+
+        var videoPlayer = document.getElementById('video_player_1');
+        var videoSource = document.getElementById('video_player_source_1');
+        videoSource.src = "/static/assets/videos/dag.mp4";
+        videoPlayer.load(); 
+      } else {
+        div2.classList.remove('visible');
+        div2.classList.add('hidden');
+        div1.classList.remove('hidden');
+        div1.classList.add('visible');
+      }
+    });
+
+
+    document.getElementById('toggleButton1').addEventListener('click', function() {
+      var div1 = document.getElementById('map-container-row');
+      var div2 = document.getElementById('dag-container-row');
+
+      if (div1.classList.contains('visible')) {
+        div1.classList.remove('visible');
+        div1.classList.add('hidden');
+        div2.classList.remove('hidden');
+        div2.classList.add('visible');
+
+        var videoPlayer = document.getElementById('video_player_1');
+        var videoSource = document.getElementById('video_player_source_1');
+        videoSource.src = "/static/assets/videos/dag.mp4";
+        videoPlayer.load(); 
+      } else {
+        div2.classList.remove('visible');
+        div2.classList.add('hidden');
+        div1.classList.remove('hidden');
+        div1.classList.add('visible');
+
+        var videoPlayer = document.getElementById('video_player_1');
+        var videoSource = document.getElementById('video_player_source_1');
+        videoSource.src = "/static/assets/videos/dag.mp4";
+        videoPlayer.pause() 
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('view-modal').addEventListener('click', function() {
+     
+        var videoPlayer = document.getElementById('parking_vid');
+        var videoSource = document.getElementById('parking_src');
+        videoSource.src = "/static/assets/videos/parking_final_edited.mp4";
+        videoPlayer.load(); 
+
+        
+
+
+    
+});
+  </script>
+
+<script>
+    // Function to create a rainbow gradient
+    function createRainbowGradient(ctx, x, y, maxRadius) {
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, maxRadius);
+
+        // Add rainbow color stops
+        gradient.addColorStop(0, 'rgba(255, 0, 0, 0.74)');   // Red (Center)
+        gradient.addColorStop(0.2, 'rgba(255, 165, 0, 0.74)'); // Orange
+        gradient.addColorStop(0.4, 'rgba(255, 255, 0, 0.74)'); // Yellow
+        gradient.addColorStop(0.6, 'rgba(0, 255, 0, 0.74)');   // Green
+        gradient.addColorStop(0.8, 'rgba(0, 0, 255, 0.74)');   // Blue
+        gradient.addColorStop(1, 'rgba(128, 0, 128, 0.74)');   // Violet (Edge)
+
+        return gradient;
+    }
+
+    // Function to draw a structurally varying elliptical shape
+    function drawStructurallyVaryingEllipse(ctx, canvas) {
+        const x = canvas.width / 2;
+        const y = canvas.height / 2;
+        const numPoints = Math.floor(Math.random() * 20) + 30; // Varying number of points
+        const maxRadius = Math.random() * 50 + 60; // Maximum radius
+        const curvatureFactor = Math.random() * 30 + 10; // Varying curvature intensity
+
+        // Apply rainbow gradient as fill style
+        ctx.fillStyle = createRainbowGradient(ctx, x, y, maxRadius);
+
+        // Begin a path for the elliptical shape
+        ctx.beginPath();
+        const angleStep = Math.PI * 2 / numPoints;
+
+        for (let i = 0; i < numPoints; i++) {
+            const angle = i * angleStep;
+            // Smoothly varying radii for a more complex shape
+            const radiusX = maxRadius + curvatureFactor * Math.sin(3 * angle); // Horizontal radius variation
+            const radiusY = maxRadius + curvatureFactor * Math.cos(3 * angle); // Vertical radius variation
+
+            const pointX = x + radiusX * Math.cos(angle);
+            const pointY = y + radiusY * Math.sin(angle);
+
+            if (i === 0) {
+                ctx.moveTo(pointX, pointY);
+            } else {
+                ctx.lineTo(pointX, pointY);
+            }
+        }
+
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // Function to handle canvas creation and shape drawing on hover
+    function handleHover() {
+        const container = document.getElementById('map-container');
+        // const button = document.getElementById('drawButton');
+        const buttons = document.getElementsByClassName('map-button')
+        
+        Array.from(buttons).forEach(button => {
+        button.addEventListener('mouseover', function() {
+
+            var button_top = button.style.top
+            const canvas_top = parseFloat(button_top.replace('%', '')); // 81
+
+            var button_left = button.style.left
+            const canvas_left = parseFloat(button_left.replace('%', '')); 
+            // console.log(canvas_left)
+
+
+
+            // Create and set up canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = button.offsetWidth * 6;  // Make canvas wider than button
+            canvas.height = button.offsetHeight * 6; // Make canvas taller than button
+            canvas.id = 'heatmapCanvas';
+            canvas.style.top = (canvas_top - 14) + '%';  // Position canvas at the top of the container left: ; top: ;
+            canvas.style.left = (canvas_left - 9) + '%'; // Position canvas at the left of the container
+            container.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+
+            // Draw a single structurally varying elliptical shape
+            drawStructurallyVaryingEllipse(ctx, canvas);
+        });
+    
+
+        button.addEventListener('mouseout', function() {
+            // Remove the canvas
+            const canvas = document.getElementById('heatmapCanvas');
+            if (canvas) {
+                canvas.remove();
+            }
+        });
+
+    });
+    }
+
+    // Initialize hover event handling
+    handleHover();
+</script>
+
+<script>
+    function handleButtonClick(name){
+
+
+        var checkbox = document.getElementById('chkbxfield');
+        var videoPlayer = document.getElementById('video_player');
+        var videoSource = document.getElementById('video_player_source');
+        console.log("INSIDE handleButtonClick FN");
+        
+
+        if(name == 'cereal'){
+
+            videoSource.src = "/static/assets/videos/page2_stitched_new.mp4";
+
+        }
+
+        if(name == 'paper'){
+
+            videoSource.src = "/static/assets/videos/video6_parking.mp4";
+
+        }
+
+        videoPlayer.load(); 
+
+    }
+</script>
+
+
+{% endblock %}
+
+
+{% block title %}
+    {{title}}
+{% endblock title %}

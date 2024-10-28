@@ -1,0 +1,590 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+<style>
+    .neumorphic-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 30px;
+      border: none;
+      background-color: #e0e0e0;
+      border-radius: 15px;
+      box-shadow: 9px 9px 20px #c4c4c4, -9px -9px 20px #ffffff;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .neumorphic-button:hover {
+      transform: scale(1.05);
+      box-shadow: 4px 4px 8px #c4c4c4, -4px -4px 8px #ffffff;
+    }
+
+    .neumorphic-button svg {
+      inline-size: 1em;
+      fill: currentColor;
+      margin-right: 10px;
+    }
+</style>
+
+<style>
+    :root {
+      --font-primary: "Poppins", sans-serif;
+      --spacer: 0.5rem;
+      --card-gap: calc(var(--spacer) / 2);
+      --card-gap-lg: calc(var(--spacer) * 2);
+      --card-gap-xl: calc(var(--spacer) * 4);
+      --grid-gap: 2rem;
+      --grid-gap--sm: var(--grid-gap);
+      --grid-gap--lg: calc(var(--grid-gap) / 2);
+      --btn-bg: #f0f0f3;
+      --btn-fg: #333333;
+      --tag-bg: #663399;
+      --tag-fg: #ffffff;
+      --overlay-grad1: rgba(0, 0, 0, 0.3);
+      --overlay-grad2: rgba(0, 0, 0, 0.7);
+      --card-bg: #e0e0e0;
+      --card-text: #333333;
+      --shadow-light: #ffffff;
+      --shadow-dark: rgba(0, 0, 0, 0.2);
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-primary);
+      font-weight: 400;
+      padding: var(--grid-gap--sm) 0;
+      background-color: #f0f0f3;
+      margin-top: -31px;
+    }
+
+    main {
+      width: 90%;
+      margin: 0 auto;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--grid-gap);
+      max-width: 100rem;
+      margin: 0 auto;
+      
+    }
+
+    .card {
+      display: grid;
+      grid-template: [card-start] "tags actions" [card-end]/[card-start] 1fr auto [card-end];
+      place-items: center;
+      place-content: center;
+      background-color: var(--card-bg);
+      color: var(--card-text);
+      border-radius: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      max-width: 100%;
+      margin: 0 auto;
+      transform: translateY(-5px);
+      box-shadow: 9px 9px 20px var(--shadow-dark), -9px -9px 20px var(--shadow-light);
+      margin-top: 60px;
+      width: 439.16px;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        box-shadow: 9px 9px 20px var(--shadow-dark), -9px -9px 20px var(--shadow-light);
+    }
+
+    .card > *, .card::before {
+      grid-area: card;
+    }
+
+    .card__actions {
+      grid-area: actions;
+      place-self: end;
+      display: flex;
+      padding: var(--card-gap);
+      gap: var(--card-gap);
+    }
+
+    .card__btn {
+      display: flex;
+      padding: var(--card-gap);
+      gap: var(--card-gap);
+      font-family: inherit;
+      font-size: inherit;
+      border: none;
+      cursor: pointer;
+      background-color: var(--btn-bg);
+      color: var(--btn-fg);
+      border-radius: 12px;
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card__btn:hover {
+      background-color: var(--btn-fg);
+      color: var(--btn-bg);
+      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    }
+
+    .card__btn [data-icon] {
+      inline-size: 1em;
+      fill: inherit;
+    }
+
+    .card__tags {
+      grid-area: tags;
+      place-self: start;
+      display: flex;
+      gap: var(--card-gap);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.3;
+      user-select: none;
+      background-color: var(--tag-bg);
+      color: var(--tag-fg);
+      border-radius: 12px;
+      padding: 0.25rem 0.5rem;
+      box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    }
+
+    .card__title {
+      font-size: clamp(1rem, 1rem + 2vw, 2.8rem);
+      font-weight: 900;
+      line-height: 1.1;
+      place-self: center;
+      text-align: center;
+      padding: 0 var(--card-gap-lg);
+    }
+
+    .card__video {
+      width: 100%;
+      object-fit: cover;
+      aspect-ratio: 16/9;
+      z-index: -1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    @media screen and (max-width: 900px) {
+      .container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>
+    .view-modal, .popup{
+  position: absolute;
+  left: 50%;
+}
+button{
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  transition: background 0.1s linear, border-color 0.1s linear, color 0.1s linear;
+}
+.view-modal{
+  /* top: 50%;
+  color: #ff4b4b;
+  font-size: 18px;
+  padding: 10px 25px;
+  background: #fff;
+  transform: translate(-50%, -50%); */
+}
+.popup{
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  top: -150%;
+  max-width: 1040px;
+  height: 700px;
+  width: 100%;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0px 10px 15px rgba(0,0,0,0.1);
+  transform: translate(-50%, -50%) scale(1.2);
+  transition: top 0s 0.2s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+  
+}
+.popup.show{
+  top: 50%;
+  opacity: 1;
+  pointer-events: auto;
+  transform:translate(-50%, -50%) scale(1);
+  transition: top 0s 0s ease-in-out,
+              opacity 0.2s 0s ease-in-out,
+              transform 0.2s 0s ease-in-out;
+
+}
+.popup :is(header, .icons, .field){
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.popup header{
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ebedf9;
+}
+header span{
+  font-size: 21px;
+  font-weight: 600;
+}
+header .close, .icons a{
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  justify-content: center;
+  transition: all 0.3s ease-in-out;
+}
+header .close{
+  color: #878787;
+  font-size: 17px;
+  background: #f2f3fb;
+  height: 33px;
+  width: 33px;
+  cursor: pointer;
+}
+header .close:hover{
+  background: #ebedf9;
+}
+.popup .content{
+  margin: 20px 0;
+}
+.popup .icons{
+  margin: 15px 0 20px 0;
+}
+.content p{
+  font-size: 16px;
+}
+.content .icons a{
+  height: 50px;
+  width: 50px;
+  font-size: 20px;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.icons a i{
+  transition: transform 0.3s ease-in-out;
+}
+.icons a:nth-child(1){
+  color: #1877F2;
+  border-color: #b7d4fb;
+}
+.icons a:nth-child(1):hover{
+  background: #1877F2;
+}
+.icons a:nth-child(2){
+  color: #46C1F6;
+  border-color: #b6e7fc;
+}
+.icons a:nth-child(2):hover{
+  background: #46C1F6;
+}
+.icons a:nth-child(3){
+  color: #e1306c;
+  border-color: #f5bccf;
+}
+.icons a:nth-child(3):hover{
+  background: #e1306c;
+}
+.icons a:nth-child(4){
+  color: #25D366;
+  border-color: #bef4d2;
+}
+.icons a:nth-child(4):hover{
+  background: #25D366;
+}
+.icons a:nth-child(5){
+  color: #0088cc;
+  border-color: #b3e6ff;
+}
+.icons a:nth-child(5):hover{
+  background: #0088cc;
+}
+.icons a:hover{
+  color: #fff;
+  border-color: transparent;
+}
+.icons a:hover i{
+  transform: scale(1.2);
+}
+.content .field{
+  margin: 12px 0 -5px 0;
+  height: 45px;
+  border-radius: 4px;
+  padding: 0 5px;
+  border: 1px solid #e1e1e1;
+}
+.field.active{
+  border-color: #ff4b4b;
+}
+.field i{
+  width: 50px;
+  font-size: 18px;
+  text-align: center;
+}
+.field.active i{
+  color: #ff4b4b;
+}
+.field input{
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+.field button{
+  color: #fff;
+  padding: 5px 18px;
+  background: #ff4b4b;
+}
+.field button:hover{
+  background: #ff2a2a;
+}
+</style>
+<section id="home-section" class="hero">
+  <div class="home-slider owl-carousel">
+    <div class="slider-item" style="background-image: url(https://res.cloudinary.com/dyfmlusbc/image/upload/v1729683079/LyEye_Carousel_highres_1_wa2wju.gif); background-size: contain;">
+      <div class="overlay"></div>
+      <div class="container">
+        <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
+
+          <!-- <div class="col-md-12 ftco-animate text-center">
+            <h1 class="mb-2">We are always Available</h1>
+            <h2 class="subheading mb-4">24 x 7</h2>
+            <p><a href="#" class="btn btn-primary">View Details</a></p>
+          </div> -->
+
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- <div class="slider-item" style="background-image: url(https://res.cloudinary.com/dyfmlusbc/image/upload/v1729680948/LyfEye_LyfBubbleSlider_jvwwsr.gif); background-size: contain;">
+        <div class="overlay"></div>
+        <div class="container">
+          <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
+  
+  
+          </div>
+        </div>
+      </div> -->
+    
+  </div>
+</section>
+
+
+
+<br><br><br><br>
+
+<main>
+    <!-- <div >
+        <h1 style="text-align: center; font-size: 28px; margin-top: 30px;">SURVEILLENCE CAMERA</h1>
+    </div> -->
+    <div id="view-modal" onclick="openModal()" style="position: fixed; right: 258px; top: 8%; border-radius: 50px; background-color: #9083B3; width: 50px; height: 50px;">
+        <i class="fa fa-book" style="margin-left: 10px; margin-top: 12px; font-size: 30px; color: white;"></i>
+    </div>
+    
+  <div class="container" style="margin-top: -100px;">
+    <a href="/surveillance/z1">
+    <article class="card" onclick="">
+      <!-- <h2 class="card__title">Title 1</h2> -->
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670664/VID-20241023-WA0002_lut5ic.mp4">
+      </video>
+
+      <!-- <aside class="card__tags">Tag 1</aside> -->
+      <!-- <aside class="card__actions">
+        <button class="card__btn" title="Save as favorite">
+          <svg data-icon="heart" viewBox="0 0 512 512">
+            <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+          </svg>
+        </button>
+      </aside> -->
+    </article>
+</a>
+<a href="/surveillance/z2">
+    <article class="card">
+      <!-- <h2 class="card__title">Title 2</h2> -->
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670662/VID-20241023-WA0005_n673th.mp4">
+      </video>
+      <!-- <aside class="card__tags">Tag 2</aside> -->
+      <!-- <aside class="card__actions">
+        <button class="card__btn" title="Save as favorite">
+          <svg data-icon="heart" viewBox="0 0 512 512">
+            <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+          </svg>
+        </button>
+      </aside> -->
+    </article>
+</a>
+
+<a href="/surveillance/z3">
+
+    <article class="card" >
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670658/VID-20241023-WA0003_xxhjvw.mp4">
+      </video>
+      
+    </article>
+</a>
+
+
+    <article class="card" style="margin-top: 0px !important; background-color: #66FF65;" onclick="gotoInsgights()">
+        <h1 style="margin-top: -10px; "><b>CAM 1</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: red; ">RISK SCORE: 85</h1>
+    </article>
+    <article class="card" style="margin-top: 0px !important;">
+        <h1 style="margin-top: -10px; "><b>CAM 2</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: #ff8c00;" >RISK SCORE: 50</h1>
+    </article>
+    <article class="card" style="margin-top: 0px !important; background-color: #66FF65">
+        <h1 style="margin-top: -10px;"><b>CAM 5</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: red;">RISK SCORE: 80</h1>
+    </article>
+    
+
+
+
+
+    <article class="card">
+      <!-- <h2 class="card__title">Title 4</h2> -->
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670658/VID-20241023-WA0007_aaheku.mp4">
+      </video>
+      <!-- <aside class="card__tags">Tag 4</aside> -->
+      <!-- <aside class="card__actions">
+        <button class="card__btn" title="Save as favorite">
+          <svg data-icon="heart" viewBox="0 0 512 512">
+            <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+          </svg>
+        </button>
+      </aside> -->
+    </article>
+    <article class="card">
+      <!-- <h2 class="card__title">Title 5</h2> -->
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670657/VID-20241023-WA0004_bnxqlg.mp4">
+      </video>
+      <!-- <aside class="card__tags">Tag 5</aside> -->
+      <!-- <aside class="card__actions">
+        <button class="card__btn" title="Save as favorite">
+          <svg data-icon="heart" viewBox="0 0 512 512">
+            <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/>
+          </svg>
+        </button>
+      </aside> -->
+    </article>
+    <article class="card">
+      <!-- <h2 class="card__title">Title 6</h2> -->
+      <video autoplay muted loop class="card__video">
+        <source src="https://res.cloudinary.com/dyfmlusbc/video/upload/v1729670654/VID-20241023-WA0006_yovsq3.mp4">
+      </video>
+      
+    </article>
+
+    <article class="card" style="margin-top: 0px !important;">
+        <h1 style="margin-top: -10px;"><b>CAM 4</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: green;">RISK SCORE: 30</h1>
+    </article>
+
+    <article class="card" style="margin-top: 0px !important;">
+        <h1 style="margin-top: -10px;"><b>CAM 3</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: #ff8c00;">RISK SCORE: 70</h1>
+    </article>
+    
+
+
+
+
+    <article class="card" style="margin-top: 0px !important;">
+        <h1 style="margin-top: -10px;"><b>CAM 6</b></h1>
+        <br/>
+        <h1 style="margin-top: 30px; color: green;">RISK SCORE: 20</h1>
+    </article>
+  </div>
+
+
+  <div class="popup" style="width: 100% !important; height: 100% !important; max-width: none; top: 50% !important; margin-top: 72px;">
+   
+    <div class="content">
+
+        <div class="container_card">
+            <article class="card" style="width: 80% !important;  transform: translateY(-97px) !important;
+">
+             
+
+              <img id="parking_img" src="/static/assets/img/manual.png" class="hidden"/>
+
+              <!-- <aside class="card__tags">Zone 1 Surveillance</aside> -->
+              
+            </article>
+            
+          </div>
+
+        
+
+          
+    
+  
+      
+  
+      <div class="" style="margin-left: 0px !important;">
+        <input type="" id="" name="" min="0" max="100" value="" style="display: none !important;">
+      </div>
+      <!-- <p>Or copy link</p>
+      <div class="field">
+        <i class="url-icon uil uil-link"></i>
+        <input type="text" readonly value="example.com/share-link">
+        <button>Copy</button>
+      </div> -->
+    </div>
+    
+  </div>
+</main>
+
+<script>
+  function gotoInsgights(){
+    window.location.href = 'http://127.0.0.1:8000/insights';
+  }
+</script>
+
+
+        
+
+
+        <!-- <div class="row" style="align-items: center; justify-content: center;">
+
+            <a class="neumorphic-button" id="start-track" style="margin-right: 20px;"  href="/ad_map_view_w_mota">ADVERTISEMENT&nbsp;INSIGHTS</a>
+            <a class="neumorphic-button" id="start-track" style="margin-left: 20px;"   href="/surveillance">SURVEILLANCE&nbsp;TRACKING</a>
+
+        </div> -->
+
+<!-- <hr> -->
+
+
+
+
+{% endblock %}
